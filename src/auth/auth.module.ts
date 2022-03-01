@@ -14,9 +14,9 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [//
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
-      secret: 'jungse',
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: {
-        expiresIn: 60 * 60, //얼마나 지속할껀지 지금은 1시간
+        expiresIn: '1 day', //얼마나 지속할껀지 지금은 1시간
       },
     }),
   ],

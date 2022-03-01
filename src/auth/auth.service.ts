@@ -10,7 +10,7 @@ export class AuthService {
   public getJwtRefreshToken(userId: number) {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
-      secret: 'jungse',
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn:360000,
     });
 
@@ -20,7 +20,7 @@ export class AuthService {
   public getJwtAccessToken(userId: number) {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
-      secret: 'jungse',
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: 360000,
     });
 

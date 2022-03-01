@@ -24,6 +24,7 @@ import {SetCookieInterceptor} from './set-cookie.interceptor';
 import {JwtGuard} from './jwt.guard';
 import {GqlAuthGuard} from './gqlauth.guard';
 import {use} from 'passport';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('api/auth')
 @ApiTags('인증 API')
@@ -33,14 +34,16 @@ export class AuthController {
         private userService : UserService
     ) {}
 
+    
     @Get('/cookies')
     getCookies(@Req()req : Request): any {
         console.log(req)
     }
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('profile')
     getProfile(@CurrentUser()user : User) {
-        console.log(user)
+        console.log(user.email + "   from controller")
         return user;
     }
 
@@ -72,6 +75,8 @@ export class AuthController {
             maxAge: 3600000
         });
         response.setHeader('Authorization', `Bearer ${refreshToken}`);
+        response.setHeader('Access-Control-Allow-Origin', 'http://localhost:4000');
+        response.setHeader('Access-Control-Allow-Credentials', 'true');
         return {user,refreshToken};
        
   

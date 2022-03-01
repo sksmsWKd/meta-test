@@ -21,9 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: TokenPayload, done: VerifiedCallback): Promise<void> {
+  async validate(payload: TokenPayload, done: VerifiedCallback) {
     const user = await this.userRepository.findOne(payload.userId);
     
-    done(null, user);
+    return user;
   }
+
+  // async validate(payload: any) {
+  //   return { userId: payload.sub, username: payload.username };
+  // }
 }

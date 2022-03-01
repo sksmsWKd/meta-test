@@ -13,12 +13,14 @@ import { SignupsService } from './signups/signups.service';
 import { SignupsModule } from './signups/signups.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
 
 @Module({
   controllers: [AppController],
   providers: [AppService ],
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     AuthModule,
     TypeOrmModule.forRoot(ormconfig),
     UserModule,
