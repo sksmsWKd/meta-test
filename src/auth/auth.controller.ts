@@ -15,16 +15,15 @@ import {
 } from '@nestjs/common';
 import {AuthGuard} from '@nestjs/passport';
 import {AuthService} from './auth.service';
-import {Request as Re , Response} from 'express';
+import {Request as Re, Response} from 'express';
 import {CurrentUser} from 'src/decorators/user.decorator';
 import {User} from 'src/entities/user.entity';
 import {ApiOperation, ApiTags} from '@nestjs/swagger';
 import {UserService} from 'src/user/user.service';
-import { SetCookieInterceptor } from './set-cookie.interceptor';
-import { JwtGuard } from './jwt.guard';
-import { GqlAuthGuard } from './gqlauth.guard';
-import { use } from 'passport';
-
+import {SetCookieInterceptor} from './set-cookie.interceptor';
+import {JwtGuard} from './jwt.guard';
+import {GqlAuthGuard} from './gqlauth.guard';
+import {use} from 'passport';
 
 @Controller('api/auth')
 @ApiTags('인증 API')
@@ -34,23 +33,16 @@ export class AuthController {
         private userService : UserService
     ) {}
 
+    @Get('/cookies')
+    getCookies(@Req()req : Request): any {
+        console.log(req)
+    }
 
-@Get('/cookies')
-getCookies(@Req() req:Request):any{
-   console.log(req)
-}
-
-
-
-
-    @UseGuards(JwtGuard)
-          @UseInterceptors(SetCookieInterceptor)
-    @Get('/profile')
-    getProfile(@Request() req) {
-        return req.user;
-      }
-
-      
+    @Get('profile')
+    getProfile(@CurrentUser()user : User) {
+        console.log(user)
+        return user;
+    }
 
     @Get('/google')
     @ApiOperation({summary: '구글 로그인', description: '구글 로그인하기'})
@@ -59,28 +51,30 @@ getCookies(@Req() req:Request):any{
         console.log(req)
     }
 
-  
+    // @UseInterceptors(SetCookieInterceptor)
     @Get('/google/redirect')
     @UseGuards(AuthGuard('google'))
-
-    @Redirect('http://localhost:4000')
+    // @Redirect('http://localhost:4000/api/auth/profile')
     async googleAuthRedirect(
         @CurrentUser()user : User,
         @Res({passthrough: true})response : Response,
     ) {
-        const accessToken = this.authService.getJwtAccessToken(user.id);
+        console.log(user + "data from user decorator");
+        // const accessToken = this.authService.getJwtAccessToken(user.id);
         const refreshToken = this
             .authService
             .getJwtRefreshToken(user.id);
-            response.setHeader('Authorization', `Bearer ${accessToken}`);
+
         response.cookie('token', refreshToken, {
             httpOnly: true,
             path: '/',
             sameSite: 'lax',
             maxAge: 3600000
         });
-        return user;
-        // return this.authService.googleLogin(req)
+        response.setHeader('Authorization', `Bearer ${refreshToken}`);
+        return {user,refreshToken};
+       
+  
     }
 
     @Post('/signUp')
@@ -127,11 +121,7 @@ getCookies(@Req() req:Request):any{
     }
     @UseGuards(JwtRefreshGuard)
     @Get('/refresh')
-    accessGet(
-        @Request()req : Re,
-        @CurrentUser()user : User,
-        @Res()res : Response,
-    ) {
+    accessGet(@Request()req : Re, @CurrentUser()user : User, @Res()res : Response,) {
         const accessToken = this
             .authService
             .getJwtAccessToken(user.id);
@@ -156,6 +146,5 @@ getCookies(@Req() req:Request):any{
         });
         return '1';
     }
-
 
 }

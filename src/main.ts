@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { TransformResponseInterceptor } from './config/transformResponse.interceptor';
 import { HttpExceptionFilter } from './http-exception.filter';
-
+import * as session from 'express-session';
 dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,13 +15,19 @@ async function bootstrap() {
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformResponseInterceptor());
-
+  app.use(
+    session({
+      secret: 'jungse',
+      resave: false,
+      saveUninitialized: false,
+    }));
   app.enableCors({
     origin: true,
     credentials: true,
     exposedHeaders: ['Authorization'],
   });
 
+ 
  
   const config = new DocumentBuilder()
     .setTitle('Meta-Composer Api')

@@ -12,6 +12,7 @@ import { SignupsService } from './signups/signups.service';
 
 import { SignupsModule } from './signups/signups.module';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 
 @Module({
@@ -24,7 +25,10 @@ import { ConfigModule } from '@nestjs/config';
     LessonsModule,
     SignupsModule,
     ConfigModule.forRoot({ isGlobal: true,}),
-  
-  ],
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      signOptions: {expiresIn: '6000s'}
+    })],
+
 })
 export class AppModule {}
